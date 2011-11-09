@@ -50,7 +50,7 @@ function sorttablepost($args){
 
 	// Automatically disable thumbnails if the current theme does not support them
 	if( !current_theme_supports( 'post-thumbnails' ) == TRUE ) {
-		$opt_nothumb = '';
+		$opt_nothumb = 'true';
 	}
 
 	// Options for custom post type and taxonomies
