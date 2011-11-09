@@ -12,15 +12,17 @@ This plugin allows you to display an index of posts (or a custom post type) in a
 
 Ever want to list your WordPress posts (or custom post type entries) in an easy-to-read, sortable data table? This plugin makes it easy to do just that.
 
-**General Usage**
+**How To Use**
 
 Add a sortable table of all blog posts by placing this shortcode into a post or page:
 
 `[sorttablepost]`
 
+
 Or you can specify in the shortcode the name of a custom post type to show.
 
 `[sorttablepost type="my-custom-post-type"]`
+
 
 **Use Custom Taxonomies**
 
@@ -28,11 +30,13 @@ You can replace the Categories or Tags columns (or both) with your own custom ta
 
 `[sorttablepost cat="my-custom-taxonomy" tag="another-custom-taxonomy"]`
 
+
 **Hide Columns**
 
 You can omit undesired columns by using one or more of the following shortcode options:
 
 `[sorttablepost nothumb="true" nodate="true" nocats="true" notags="true"]`
+
 
 **About This Plugin**
 
@@ -89,6 +93,7 @@ table.sortable td.col7 {
 	text-align: center !important;
 	width: 10% !important;
 }`
+
 
 == Changelog ==
 
