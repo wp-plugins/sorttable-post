@@ -20,14 +20,19 @@ By default, the plugin outputs the following columns:
 1. Post Categories
 1. Post Tags
 
-You can: choose to omit any of those columns; replace `Post` with a custom post type; replace `Categories` and `Tags` with custom taxonomies; and (as of v4.0) insert any number of custom field columns that will appear between `Post Date` and `Categories`.
+Options include:
+
+* Omit any of the default columns
+* Replace `Post` with a custom post type
+* Replace `Categories` and `Tags` with custom taxonomies
+* As of version 4.0 you can insert any number of custom field columns
 
 
 **How To Use**
 
 `[sorttablepost]`
 
-Place this shortcode into a post or page to insert a sortable table of all posts (or custom post type entries).
+Place this shortcode into a post or page to insert a sortable table of all posts.
 
 **Hide Standard Columns**
 
