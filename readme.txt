@@ -4,39 +4,54 @@ Contributors: sscovil
 Tags: post, table, sort, sortable, sorttable, index
 Requires at least: 3.2.1
 Tested up to: 3.2.1
-Stable tag: 3.0
+Stable tag: 4.0
 
-This plugin allows you to display an index of posts (or a custom post type) in a sortable table using a simple shortcode.
+This plugin allows you to display an index of posts (or a custom post type) in a sortable table on any page or post, using a simple shortcode.
 
 == Description ==
 
-Ever want to list your WordPress posts (or custom post type entries) in an easy-to-read, sortable data table? This plugin makes it easy to do just that.
+Ever want to list your WordPress posts in an easy-to-read, sortable data table? This plugin makes it easy to do just that. It supports post thumbnails, custom post types, custom taxonomies, and (as of v4.0) custom fields.
+
+By default, the plugin outputs the following columns:
+
+1. Post Thumbnail (if enabled)
+1. Post Title
+1. Post Date
+1. Post Categories
+1. Post Tags
+
+You can: choose to omit any of those columns; replace `Post` with a custom post type; replace `Categories` and `Tags` with custom taxonomies; and (as of v4.0) insert any number of custom field columns that will appear between `Post Date` and `Categories`.
+
 
 **How To Use**
 
-Add a sortable table of all blog posts by placing this shortcode into a post or page:
-
 `[sorttablepost]`
 
+Place this shortcode into a post or page to insert a sortable table of all posts (or custom post type entries).
 
-Or you can specify in the shortcode the name of a custom post type to show.
+**Hide Standard Columns**
+
+`[sorttablepost nothumb="true" notitle="true" nodate="true" nocats="true" notags="true"]`
+
+You can omit any undesired columns by using one or more of these shortcode options.
+
+**Show Custom Post Type**
 
 `[sorttablepost type="my-custom-post-type"]`
 
+You can specify the name of a custom post type (or `page`), instead of showing posts.
 
 **Use Custom Taxonomies**
 
-You can replace the Categories or Tags columns (or both) with your own custom taxonomies.
-
 `[sorttablepost cat="my-custom-taxonomy" tag="another-custom-taxonomy"]`
 
+You can replace the standard `Categories` or `Tags` columns (or both) with custom taxonomies.
 
-**Hide Columns**
+**Use Custom Fields**
 
-You can omit undesired columns by using one or more of the following shortcode options:
+`[sorttablepost meta="Custom Field Key,Another Custom Field Key,Yet Another"]`
 
-`[sorttablepost nothumb="true" nodate="true" nocats="true" notags="true"]`
-
+As of v4.0, you can add as many custom field columns as you like. Use a comma-seperated list of field keys.
 
 **About This Plugin**
 
@@ -60,7 +75,7 @@ Documentation for sorttable.js can be found at: http://www.kryogenix.org/code/br
 
 = How do I style my sortable tables? =
 
-I know, I know. The default colors look pretty nasty in most themes. Also, you may want to style individual columns. Below is the code I used to change the default colors to match my theme on the live demo seen here: http://mynewsitepreview.com/csv2sorttable-wordpress-plugin-live-demo
+I know, I know. The default colors look pretty nasty in most themes. Also, you may want to style individual columns. Below is the code I used to change the default colors to match my theme on the live demo seen here: http://mynewsitepreview.com/sorttablepost-wordpress-plugin-live-demo
 
 You can add similar code to your theme's `style.css`:
 
@@ -96,6 +111,11 @@ table.sortable td.col7 {
 
 
 == Changelog ==
+
+= 4.0 =
+* Added option to omit the Title column.
+* Added support for custom field columns.
+* Made hide-column shortcode options work regardless of singular or plural (e.g. `nothumb="true"` works the same as `nothumbs="true"`).
 
 = 3.0 =
 * Added options to omit the Thumbnail, Date, and Category columns.
