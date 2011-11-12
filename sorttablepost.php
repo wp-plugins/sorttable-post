@@ -3,7 +3,7 @@
 Plugin Name: SortTable Post
 Plugin URI: http://mynewsitepreview.com/sorttablepost
 Description: Display an index of posts (or a custom post type) in a sortable table using a simple shortcode.
-Version: 4.1
+Version: 4.2
 Author: Shaun Scovil
 Author URI: http://shaunscovil.com/
 License: GPL2
@@ -40,8 +40,8 @@ if ( !is_admin() ) {
 	add_action('wp_print_styles', 'sorttablepost_enqueue_styles');
 }
 
+// Get options from shortcode and generate SortTable
 function sorttablepost($args){
-
 	// Options for disabling certain columns
 	$opt_nothumbs = $args['nothumb'] . $args['nothumbs']; // Boolean, default 'false'
 		if( !current_theme_supports( 'post-thumbnails' ) == TRUE ) {
@@ -49,9 +49,14 @@ function sorttablepost($args){
 		}
 	$opt_notitles = $args['notitle'] . $args['notitles']; // Boolean, default 'false'
 	$opt_nodates = $args['nodate'] . $args['nodates']; // Boolean, default 'false'
-	$opt_excerpts = $args['excerpt'] . $args['excerpts']; // Value, if any, will be used as the column heading
 	$opt_nocats = $args['nocat'] . $args['nocats']; // Boolean, default 'false'
 	$opt_notags = $args['notag'] . $args['notags']; // Boolean, default 'false'
+
+	// Option for adding a post excerpt column
+	$opt_excerpts = $args['excerpt'] . $args['excerpts']; // Value, if any, will be used as the column heading
+
+	// Option for giving the table a unique ID
+	$opt_tableid = $args['id']; // Value, if any, will be used as the ID
 
 	// Option for custom post type
 	$valid_post_types = get_post_types('','names');
@@ -59,11 +64,6 @@ function sorttablepost($args){
 		if (!in_array($opt_type, $valid_post_types)) { // Validate custom post type
 			$opt_type = 'post'; // By default, use Posts
 		}
-
-	// Option for custom fields
-	if( $args['meta'] ) {
-		$opt_meta = explode(",", $args['meta']); // Allow user to specify Custom Fields in a comma-separated list
-	} // Note: We cannot validate custom fields outside the loop, because they are unique to each post
 
 	// Options for custom taxonomies
 	$valid_taxonomies = get_taxonomies('','names');
@@ -84,15 +84,20 @@ function sorttablepost($args){
 			$taxb = get_taxonomy($opt_tag);
 			$taglabel = $taxb->labels->name;
 		}
+	
+	// Option for custom fields
+	if( $args['meta'] ) {
+		$opt_meta = explode(",", $args['meta']); // Allow user to specify Custom Fields in a comma-separated list
+	} // Note: We cannot validate custom fields outside the loop, because they are unique to each post
 
-	$count = 0;	// Used in the loop below to assign a custom key to each cell in the date column.
-				// This hack is used because most date formats will not sort correctly otherwise.
+	// Create a counter for the loop, to assign a custom key to each cell in the date column.
+	$count = 0; // This hack is used because most date formats will not sort correctly otherwise.
 
 	// Begin recording echos as an output string
 	ob_start();
 
 	// Create table header row
-	echo '<table class="sortable"><tr>';
+	echo '<table class="sortable" id="'. $opt_tableid .'"><tr>';
 	if( !$opt_nothumbs == 'true' ) { echo '<th class="sorttable_nosort"></th>'; }
 	if( !$opt_notitles == 'true' ) { echo '<th>Title</th>'; }
 	if( !$opt_nodates == 'true' ) { echo '<th>Date</th>'; }
@@ -113,6 +118,7 @@ function sorttablepost($args){
 		$count++;
 		$values = array();
 		$link = get_permalink();
+		
 		if( !$opt_nothumbs == "true" ) { $thumb = get_the_post_thumbnail($post->ID, array(50,50) ); }
 		if( !$opt_notitles == "true" ) { $title = get_the_title(); }
 		if( !$opt_nodates == "true" ) { $date = get_the_date(); }
@@ -150,6 +156,7 @@ function sorttablepost($args){
 		if( !$opt_nodates == "true" ) { echo '<td sorttable_customkey="' . $count . '">' . $date . '</td>'; }
 		if( !$opt_excerpts == '' ) { echo '<td>' . $excerpt . '</td>'; }
 		if( $opt_meta ) : foreach( $values as $value ) {
+			$value = st_findlinks($value);
 			echo '<td>' . $value . '</td>';
 		} endif;
 		if( !$opt_nocats == "true" ) {
@@ -190,8 +197,28 @@ function sorttablepost($args){
 	ob_end_clean();
 	return $content;
 }
-
-// Add shortcode
 add_shortcode("sorttablepost", "sorttablepost");
 
+function st_findlinks($text) {
+        $email_pattern = "/[^@\s]+@([-a-z0-9]+\.)+[a-z]{2,}/i";
+        $url_pattern = "/((http|https|ftp|sftp):\/\/)[a-z0-9\-\._]+\/?[a-z0-9_\.\-\?\+\/~=&#;,]*[a-z0-9\/]{1}/si";
+        $www_pattern = "/(www)[a-z0-9\-\._]+\/?[a-z0-9_\.\-\?\+\/~=&#;,]*[a-z0-9\/]{1}/si";
+ 
+        // First, check if the string contains an email address...
+        if( preg_match( $email_pattern, $text, $email ) ) {
+                $replacement = '<a href="mailto:' . $email[0]. '">' . $email[0] . '</a> ';
+                $text = preg_replace($email_pattern, $replacement, $text);
+        }
+        // Next, check if the string contains a URL beginning with http://, https://, ftp://, or sftp://
+        // ...and if not, check for a plain old www address
+        if( preg_match( $url_pattern, $text, $url ) ) {
+                $replacement = '<a href="' . $url[0]. '">' . $url[0] . '</a> ';
+                $text = preg_replace($url_pattern, $replacement, $text);
+        } elseif( preg_match( $www_pattern, $text, $www ) ) {
+                $replacement = '<a href="http://' . $www[0]. '">' . $www[0] . '</a> ';
+                $text = preg_replace($www_pattern, $replacement, $text);
+        }
+ 
+        return $text; 
+}
 ?>

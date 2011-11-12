@@ -4,7 +4,7 @@ Contributors: sscovil
 Tags: post, table, sort, sortable, sorttable, index
 Requires at least: 3.2.1
 Tested up to: 3.2.1
-Stable tag: 4.1
+Stable tag: 4.2
 
 This plugin allows you to display an index of posts (or a custom post type) in a sortable table on any page or post, using a simple shortcode.
 
@@ -57,6 +57,12 @@ You can replace the standard `Categories` or `Tags` columns (or both) with custo
 `[sorttablepost meta="Custom Field Key,Another Custom Field Key,Yet Another"]`
 
 As of v4.0, you can add as many custom field columns as you like. Use a comma-seperated list of field keys.
+
+**Assign Unique ID to Table**
+
+`[sorttablepost id="mytable"]`
+
+As of v4.2, you can give each table a unique ID. This is particularly useful when displaying multiple tables on the same page, as it allows you to style each one differently.
 
 **About This Plugin**
 
@@ -116,6 +122,10 @@ table.sortable td.col7 {
 
 
 == Changelog ==
+
+= 4.2 =
+* Added function to convert links and email addresses contained in custom field values into HTML links.
+* Added option to assign a unique ID to the table.
 
 = 4.1 =
 * Added option to include a Post Excerpt column.
