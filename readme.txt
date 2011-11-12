@@ -4,7 +4,7 @@ Contributors: sscovil
 Tags: post, table, sort, sortable, sorttable, index
 Requires at least: 3.2.1
 Tested up to: 3.2.1
-Stable tag: 4.0
+Stable tag: 4.1
 
 This plugin allows you to display an index of posts (or a custom post type) in a sortable table on any page or post, using a simple shortcode.
 
@@ -116,6 +116,10 @@ table.sortable td.col7 {
 
 
 == Changelog ==
+
+= 4.1 =
+* Added option to include a Post Excerpt column.
+* Cleaned up code by grouping variable initializations.
 
 = 4.0 =
 * Added option to omit the Title column.

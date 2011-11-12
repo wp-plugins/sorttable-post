@@ -3,7 +3,7 @@
 Plugin Name: SortTable Post
 Plugin URI: http://mynewsitepreview.com/sorttablepost
 Description: Display an index of posts (or a custom post type) in a sortable table using a simple shortcode.
-Version: 4.0
+Version: 4.1
 Author: Shaun Scovil
 Author URI: http://shaunscovil.com/
 License: GPL2
@@ -43,68 +43,65 @@ if ( !is_admin() ) {
 function sorttablepost($args){
 
 	// Options for disabling certain columns
-	$opt_nothumbs = $args['nothumb'] . $args['nothumbs'];
-	$opt_notitles = $args['notitle'] . $args['notitles'];
-	$opt_nodates = $args['nodate'] . $args['nodates'];
-	$opt_nocats = $args['nocat'] . $args['nocats'];
-	$opt_notags = $args['notag'] . $args['notags'];
+	$opt_nothumbs = $args['nothumb'] . $args['nothumbs']; // Boolean, default 'false'
+		if( !current_theme_supports( 'post-thumbnails' ) == TRUE ) {
+			$opt_nothumbs = 'true'; // Automatically disable thumbnails if the current theme does not support them
+		}
+	$opt_notitles = $args['notitle'] . $args['notitles']; // Boolean, default 'false'
+	$opt_nodates = $args['nodate'] . $args['nodates']; // Boolean, default 'false'
+	$opt_excerpts = $args['excerpt'] . $args['excerpts']; // Value, if any, will be used as the column heading
+	$opt_nocats = $args['nocat'] . $args['nocats']; // Boolean, default 'false'
+	$opt_notags = $args['notag'] . $args['notags']; // Boolean, default 'false'
 
-	// Automatically disable thumbnails if the current theme does not support them
-	if( !current_theme_supports( 'post-thumbnails' ) == TRUE ) {
-		$opt_nothumbs = 'true';
-	}
-
-	// Options for custom post type and taxonomies
+	// Option for custom post type
+	$valid_post_types = get_post_types('','names');
 	$opt_type = $args['type']; // Allow user to specify a Custom Post Type
+		if (!in_array($opt_type, $valid_post_types)) { // Validate custom post type
+			$opt_type = 'post'; // By default, use Posts
+		}
+
+	// Option for custom fields
 	if( $args['meta'] ) {
 		$opt_meta = explode(",", $args['meta']); // Allow user to specify Custom Fields in a comma-separated list
-	}
-	$opt_cat = $args['cat']; // Allow user to replace 'Category' with a Custom Taxonomy
-	$opt_tag = $args['tag']; // Allow user to replace 'Tags' with a Custom Taxonomy
+	} // Note: We cannot validate custom fields outside the loop, because they are unique to each post
 
-	// Used to validate custom post type and taxonomies
-	$valid_post_types = get_post_types('','names');
+	// Options for custom taxonomies
 	$valid_taxonomies = get_taxonomies('','names');
-	// Note: We cannot validate custom fields outside the loop, because they are unique to each post
+	$opt_cat = $args['cat']; // Allow user to replace 'Category' with a Custom Taxonomy
+		if (!in_array($opt_cat, $valid_taxonomies)) { // Validate custom taxonomy ('cat' option)
+			$opt_cat = '';
+			$catlabel = 'Categories'; // By default, use Categories
+		} else {
+			$taxa = get_taxonomy($opt_cat);
+			$catlabel = $taxa->labels->name;
+		}
+	$opt_tag = $args['tag']; // Allow user to replace 'Tags' with a Custom Taxonomy
+		if (!in_array($opt_tag, $valid_taxonomies)) { // Validate custom taxonomy ('tag' option)
+			$opt_tag = '';
+			$taglabel = 'Tags'; // By default, use Tags
+		}
+		else {
+			$taxb = get_taxonomy($opt_tag);
+			$taglabel = $taxb->labels->name;
+		}
 
-	// Validate custom post type
-	if (!in_array($opt_type, $valid_post_types)) {
-		$opt_type = 'post'; // By default, use Posts
-	}
-	// Validate custom taxonomy ('cat' option)
-	if (!in_array($opt_cat, $valid_taxonomies)) {
-		$opt_cat = '';
-		$catlabel = 'Categories'; // By default, use Categories
-	} else {
-		$taxa = get_taxonomy($opt_cat);
-		$catlabel = $taxa->labels->name;
-	}
-	// Validate custom taxonomy ('tag' option)
-	if (!in_array($opt_tag, $valid_taxonomies)) {
-		$opt_tag = '';
-		$taglabel = 'Tags'; // By default, use Tags
-	}
-	else {
-		$taxb = get_taxonomy($opt_tag);
-		$taglabel = $taxb->labels->name;
-	}	
-	// Used in the loop below to assign a custom key to each cell in the date column
-	// This hack is used because most date formats will not sort correctly otherwise
-	$count = 0;
+	$count = 0;	// Used in the loop below to assign a custom key to each cell in the date column.
+				// This hack is used because most date formats will not sort correctly otherwise.
 
 	// Begin recording echos as an output string
 	ob_start();
 
 	// Create table header row
 	echo '<table class="sortable"><tr>';
-	if( !$opt_nothumbs == "true" ) { echo '<th class="sorttable_nosort"></th>'; }
-	if( !$opt_notitles == "true" ) { echo '<th>Title</th>'; }
-	if( !$opt_nodates == "true" ) { echo '<th>Date</th>'; }
+	if( !$opt_nothumbs == 'true' ) { echo '<th class="sorttable_nosort"></th>'; }
+	if( !$opt_notitles == 'true' ) { echo '<th>Title</th>'; }
+	if( !$opt_nodates == 'true' ) { echo '<th>Date</th>'; }
+	if( !$opt_excerpts == '' ) { echo '<th>' . $opt_excerpts . '</th>'; }
 	if( $opt_meta ) : foreach( $opt_meta as $key ) {
 		echo '<th>' . $key . '</th>';
 	} endif;
-	if( !$opt_nocats == "true" ) { echo '<th>' . $catlabel . '</th>'; }
-	if( !$opt_notags == "true" ) { echo '<th>' . $taglabel . '</th>'; }
+	if( !$opt_nocats == 'true' ) { echo '<th>' . $catlabel . '</th>'; }
+	if( !$opt_notags == 'true' ) { echo '<th>' . $taglabel . '</th>'; }
 	echo '</tr>';
 	
 	// Begin the loop to generate the table body
@@ -119,6 +116,7 @@ function sorttablepost($args){
 		if( !$opt_nothumbs == "true" ) { $thumb = get_the_post_thumbnail($post->ID, array(50,50) ); }
 		if( !$opt_notitles == "true" ) { $title = get_the_title(); }
 		if( !$opt_nodates == "true" ) { $date = get_the_date(); }
+		if( !$opt_excerpts == '' ) { $excerpt = get_the_excerpt(); }
 		if( $opt_meta ) : foreach( $opt_meta as $key ) {
 			$values[] = get_post_meta($post->ID, $key, true);
 		} endif;
@@ -150,6 +148,7 @@ function sorttablepost($args){
 		}
 		if( !$opt_notitles == "true" ) { echo '<td><a href="' . $link . '">' . $title . '</a></td>'; }
 		if( !$opt_nodates == "true" ) { echo '<td sorttable_customkey="' . $count . '">' . $date . '</td>'; }
+		if( !$opt_excerpts == '' ) { echo '<td>' . $excerpt . '</td>'; }
 		if( $opt_meta ) : foreach( $values as $value ) {
 			echo '<td>' . $value . '</td>';
 		} endif;
